@@ -1,0 +1,80 @@
+<div class="bg-surface-card rounded-lg p-6 shadow-md lg:h-96">
+    <div class="mb-6 flex items-center justify-between">
+        <h2 class="text-surface text-xl font-bold">Task List</h2>
+        <div class="w-48">
+            <p-select
+                [options]="taskStatusOptions"
+                [(ngModel)]="selectedStatus"
+                placeholder="All Statuses"
+                [showClear]="true"
+                class="w-full"
+            ></p-select>
+        </div>
+    </div>
+
+    <div>
+        @if (tasks$ | async; as tasks) {
+            <p-table
+                [value]="tasks | filterTasks: selectedStatus"
+                class="w-full"
+                [showCurrentPageReport]="false"
+            >
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-task>
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.description }}</td>
+                        <td>
+                            <p-tag
+                                [severity]="getStatusSeverity(task.status)"
+                                class="rounded-full px-3 py-1 text-xs font-medium"
+                            >
+                                {{ task.status }}
+                            </p-tag>
+                        </td>
+                        <td>
+                            <div class="flex space-x-2">
+                                @if (task.status !== TaskStatus.InProgress) {
+                                    <p-button
+                                        label="In Progress"
+                                        size="small"
+                                        class="text-nowrap"
+                                        (click)="updateStatus(task.id, TaskStatus.InProgress)"
+                                    ></p-button>
+                                }
+                                @if (task.status !== TaskStatus.Completed) {
+                                    <p-button
+                                        label="Complete"
+                                        size="small"
+                                        class="text-nowrap"
+                                        (click)="updateStatus(task.id, TaskStatus.Completed)"
+                                    ></p-button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="4" class="text-surface-secondary py-8 text-center">
+                            No tasks found. Add a new task to get started!
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        } @else {
+            <div class="text-surface-secondary py-8 text-center">
+                <p>Loading tasks...</p>
+            </div>
+        }
+    </div>
+</div>
